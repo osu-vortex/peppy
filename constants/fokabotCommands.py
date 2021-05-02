@@ -55,7 +55,7 @@ def relaxSwitch(fro, chan, message):
 
 	token = userUtils.getIDSafe(fro)
 	switch = message[0].lower()
-	
+
 	if switch == "off":
 		glob.redis.publish("peppy:switch_relax", json.dumps({"user_id": token, "relax": 0}))
 		return "You are currently on Classic leaderboards"
@@ -95,8 +95,8 @@ def roll(fro, chan, message):
 	points = random.randrange(0,maxPoints)
 	return "{} rolls {} points!".format(fro, str(points))
 
-#def ask(fro, chan, message):
-#	return random.choice(["yes", "no", "maybe"])
+def ask(fro, chan, message):
+	return random.choice(["yes", "no", "maybe"])
 
 def alert(fro, chan, message):
 	msg = ' '.join(message[:]).strip()
@@ -104,7 +104,7 @@ def alert(fro, chan, message):
 		return False
 	glob.streams.broadcast("main", serverPackets.notification(msg))
 	return False
-    
+
 
 def alertUser(fro, chan, message):
 	target = message[0].lower()
@@ -449,19 +449,19 @@ def getPPMessage(userID, just_data = False):
 
 		# PP values
 		if currentAcc == -1:
-			msg += "95%: {pp95}pp | 98%: {pp98}pp | 99% {pp99}pp | 100%: {pp100}pp".format(pp100=data["pp"][0], pp99=data["pp"][1], pp98=data["pp"][2], pp95=data["pp"][3])
+			msg += "95%: {pp95}pp | 98%: {pp98}pp | 99% {pp99}pp | 100%: {pp100}pp".format(pp100=round(float(data["pp"][0]),3), pp99=round(float(data["pp"][1]),3), pp98=round(float(data["pp"][2]),3), pp95=round(float(data["pp"][3]),3))
 		else:
 			msg += "{acc:.2f}%: {pp}pp".format(acc=token.tillerino[2], pp=data["pp"][0])
-		
+
 		originalAR = data["ar"]
 		# calc new AR if HR/EZ is on
 		if (currentMods & mods.EASY) > 0:
 			data["ar"] = max(0, data["ar"] / 2)
 		if (currentMods & mods.HARDROCK) > 0:
 			data["ar"] = min(10, data["ar"] * 1.4)
-		
+
 		arstr = " ({})".format(originalAR) if originalAR != data["ar"] else ""
-		
+
 		# Beatmap info
 		msg += " | {bpm} BPM | AR {ar}{arstr} | {stars:.2f} stars".format(bpm=data["bpm"], stars=data["stars"], ar=data["ar"], arstr=arstr)
 
@@ -523,7 +523,7 @@ def tillerinoNp(fro, chan, message):
 					modsEnum += mapping[part]
 
 		# Get beatmap id from URL
-		beatmapID = fokabot.npRegex.search(beatmapURL).groups(0)[0]
+		beatmapID = fokabot.npRegex.search(beatmapURL).groups(0)[2]
 
 		# Update latest tillerino song for current token
 		token = glob.tokens.getTokenFromUsername(fro)
@@ -533,7 +533,8 @@ def tillerinoNp(fro, chan, message):
 
 		# Return tillerino message
 		return getPPMessage(userID)
-	except:
+	except Exception as e:
+		print(e)
 		return False
 
 
@@ -1172,7 +1173,7 @@ def multiplayer(fro, chan, message):
 			"mods": mpMods,
 			"team": mpTeam,
 			"settings": mpSettings,
-            "scorev": mpScoreV,
+			"scorev": mpScoreV,
 			"help": mpHelp
 		}
 		requestedSubcommand = message[0].lower().strip()
@@ -1289,12 +1290,11 @@ commands = [
 	}, {
 		"trigger": "!help",
 		"response": "Click (here)[https://ripple.moe/index.php?p=16&id=4] for FokaBot's full command list"
-	}, #{
-		#"trigger": "!ask",
-		#"syntax": "<question>",
-		#"callback": ask
-	#}, {
-	{
+	}, {
+		"trigger": "!ask",
+		"syntax": "<question>",
+		"callback": ask
+	}, {
 		"trigger": "!mm00",
 		"callback": mm00
 	}, {
@@ -1401,7 +1401,7 @@ commands = [
 		"trigger": "!rx",
 		"callback": relaxSwitch,
 		"syntax": "<on-or-off>"
-	}, {    
+	}, {
 		"trigger": "!update",
 		"callback": updateBeatmap
 	}, {
@@ -1443,3 +1443,4 @@ for cmd in commands:
 	cmd.setdefault("privileges", None)
 	cmd.setdefault("callback", None)
 	cmd.setdefault("response", "u w0t m8?")
+

@@ -9,7 +9,7 @@ from constants import serverPackets
 from objects import glob
 
 # Tillerino np regex, compiled only once to increase performance
-npRegex = re.compile("^https?:\\/\\/osu\\.ppy\\.sh\\/b\\/(\\d*)")
+npRegex = re.compile("^https?:\\/\\/(.*)\\/beatmapsets\\/(\\d*)#(\\d*)")
 
 def connect():
 	"""
